@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>自助點餐系統</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#f5f5f5;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",Arial,sans-serif;
+  color:#222;
+}
+
+button,
+input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+.header{
+  background:#fff;
+  border-bottom:1px solid #eee;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:18px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:21px;
+  font-weight:800;
+}
+
+.cart-btn{
+  border:0;
+  background:#111;
+  color:#fff;
+  padding:11px 18px;
+  border-radius:10px;
+  font-weight:700;
+}
+
+.container{
+  max-width:1100px;
+  margin:0 auto;
+  padding:30px 20px 100px;
+}
+
+.import-box{
+  background:#fff;
+  border-radius:18px;
+  padding:25px;
+  box-shadow:0 5px 25px rgba(0,0,0,.05);
+  margin-bottom:25px;
+}
+
+.import-title{
+  font-size:24px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.import-desc{
+  color:#777;
+  margin-bottom:20px;
+}
+
+.input-row{
+  display:flex;
+  gap:10px;
+}
+
+.input-row input{
+  flex:1;
+  min-width:0;
+  border:1px solid #ddd;
+  border-radius:11px;
+  padding:14px;
+  outline:none;
+}
+
+.input-row input:focus{
+  border-color:#111;
+}
+
+.primary{
+  border:0;
+  background:#111;
+  color:white;
+  padding:0 22px;
+  border-radius:11px;
+  font-weight:700;
+}
+
+.status{
+  margin-top:15px;
+  display:none;
+  padding:13px;
+  border-radius:10px;
+  background:#f1f1f1;
+}
+
+.restaurant{
+  display:none;
+}
+
+.restaurant-head{
+  background:#fff;
+  border-radius:18px;
+  padding:25px;
+  margin-bottom:20px;
+}
+
+.restaurant-name{
+  font-size:30px;
+  font-weight:900;
+}
+
+.restaurant-desc{
+  margin-top:7px;
+  color:#777;
+}
+
+.menu-layout{
+  display:grid;
+  grid-template-columns:190px 1fr;
+  gap:20px;
+}
+
+.categories{
+  position:sticky;
+  top:90px;
+  height:max-content;
+  background:#fff;
+  border-radius:16px;
+  padding:10px;
+}
+
+.category-btn{
+  width:100%;
+  border:0;
+  background:transparent;
+  padding:12px;
+  border-radius:9px;
+  text-align:left;
+}
+
+.category-btn.active{
+  background:#111;
+  color:#fff;
+}
+
+.menu-category{
+  background:#fff;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:20px;
+}
+
+.category-title{
+  font-size:22px;
+  font-weight:800;
+  margin-bottom:15px;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  gap:20px;
+  padding:18px 0;
+  border-bottom:1px solid #eee;
+  cursor:pointer;
+}
+
+.item:last-child{
+  border-bottom:0;
+}
+
+.item-info{
+  flex:1;
+}
+
+.item-name{
+  font-size:17px;
+  font-weight:750;
+}
+
+.item-desc{
+  color:#777;
+  margin-top:6px;
+  line-height:1.5;
+  font-size:14px;
+}
+
+.item-price{
+  margin-top:8px;
+  font-weight:700;
+}
+
+.item-img{
+  width:105px;
+  height:105px;
+  border-radius:12px;
+  object-fit:cover;
+  background:#eee;
+}
+
+.empty{
+  background:#fff;
+  padding:40px;
+  text-align:center;
+  border-radius:18px;
+  color:#777;
+}
+
+.overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  z-index:100;
+}
+
+.modal{
+  position:absolute;
+  width:min(600px,calc(100% - 30px));
+  max-height:90vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:20px;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  padding:25px;
+}
+
+.modal-close{
+  position:absolute;
+  right:18px;
+  top:15px;
+  border:0;
+  background:#eee;
+  width:35px;
+  height:35px;
+  border-radius:50%;
+}
+
+.modal-title{
+  font-size:23px;
+  font-weight:800;
+  padding-right:45px;
+}
+
+.modifier{
+  margin-top:20px;
+}
+
+.modifier-title{
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.option{
+  display:flex;
+  justify-content:space-between;
+  padding:11px;
+  border:1px solid #eee;
+  border-radius:10px;
+  margin-bottom:8px;
+}
+
+.option input{
+  margin-right:8px;
+}
+
+.qty{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:20px;
+  margin:20px 0;
+}
+
+.qty button{
+  border:0;
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:#eee;
+}
+
+.add-cart{
+  width:100%;
+  border:0;
+  background:#111;
+  color:#fff;
+  padding:15px;
+  border-radius:11px;
+  font-weight:800;
+}
+
+.cart-panel{
+  position:fixed;
+  right:0;
+  top:0;
+  bottom:0;
+  width:min(430px,100%);
+  background:#fff;
+  z-index:200;
+  transform:translateX(100%);
+  transition:.25s;
+  box-shadow:-5px 0 30px rgba(0,0,0,.15);
+  display:flex;
+  flex-direction:column;
+}
+
+.cart-panel.open{
+  transform:translateX(0);
+}
+
+.cart-head{
+  padding:20px;
+  border-bottom:1px solid #eee;
+  display:flex;
+  justify-content:space-between;
+}
+
+.cart-body{
+  flex:1;
+  overflow:auto;
+  padding:20px;
+}
+
+.cart-item{
+  padding:15px 0;
+  border-bottom:1px solid #eee;
+}
+
+.cart-item-name{
+  font-weight:700;
+}
+
+.cart-item-sub{
+  color:#777;
+  font-size:13px;
+  margin-top:4px;
+}
+
+.cart-bottom{
+  border-top:1px solid #eee;
+  padding:20px;
+}
+
+.total{
+  display:flex;
+  justify-content:space-between;
+  font-size:20px;
+  font-weight:800;
+  margin-bottom:15px;
+}
+
+.checkout{
+  width:100%;
+  border:0;
+  background:#111;
+  color:#fff;
+  padding:15px;
+  border-radius:11px;
+  font-weight:800;
+}
+
+.close-cart{
+  border:0;
+  background:#eee;
+  border-radius:8px;
+  padding:8px 12px;
+}
+
+.order-form{
+  display:none;
+  background:#fff;
+  padding:25px;
+  border-radius:18px;
+  margin-top:20px;
+}
+
+.form-group{
+  margin-bottom:15px;
+}
+
+.form-group label{
+  display:block;
+  font-weight:700;
+  margin-bottom:7px;
+}
+
+.form-group input,
+.form-group textarea{
+  width:100%;
+  border:1px solid #ddd;
+  border-radius:10px;
+  padding:12px;
+}
+
+.form-group textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+@media(max-width:700px){
+
+  .container{
+    padding:20px 12px 80px;
+  }
+
+  .input-row{
+    flex-direction:column;
+  }
+
+  .primary{
+    padding:14px;
+  }
+
+  .menu-layout{
+    display:block;
+  }
+
+  .categories{
+    position:static;
+    display:flex;
+    overflow:auto;
+    margin-bottom:15px;
+  }
+
+  .category-btn{
+    width:auto;
+    white-space:nowrap;
+  }
+
+  .restaurant-name{
+    font-size:24px;
+  }
+
+  .item-img{
+    width:85px;
+    height:85px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">自助點餐系統</div>
+
+    <button class="cart-btn" onclick="openCart()">
+      購物車 <span id="cartCount">0</span>
+    </button>
+  </div>
+</header>
+
+<main class="container">
+
+  <section class="import-box">
+
+    <div class="import-title">
+      匯入 Uber Eats 餐廳
+    </div>
+
+    <div class="import-desc">
+      貼上餐廳網址，系統會自動讀取餐廳、分類、商品、價格與部分客製化選項。
+    </div>
+
+    <div class="input-row">
+
+      <input
+        id="restaurantUrl"
+        type="url"
+        placeholder="https://www.ubereats.com/tw/store/..."
+      >
+
+      <button class="primary" onclick="importRestaurant()">
+        開始匯入
+      </button>
+
+    </div>
+
+    <div id="status" class="status"></div>
+
+  </section>
+
+
+  <section id="restaurant" class="restaurant">
+
+    <div class="restaurant-head">
+
+      <div id="restaurantName" class="restaurant-name">
+      </div>
+
+      <div id="restaurantDesc" class="restaurant-desc">
+      </div>
+
+    </div>
+
+
+    <div class="menu-layout">
+
+      <aside id="categories" class="categories">
+      </aside>
+
+      <div id="menu"></div>
+
+    </div>
+
+  </section>
+
+
+  <section id="orderForm" class="order-form">
+
+    <h2>確認訂單</h2>
+
+    <div class="form-group">
+      <label>姓名</label>
+      <input id="customerName" placeholder="請輸入姓名">
+    </div>
+
+    <div class="form-group">
+      <label>電話</label>
+      <input id="customerPhone" placeholder="請輸入電話">
+    </div>
+
+    <div class="form-group">
+      <label>備註</label>
+      <textarea id="customerNote" placeholder="例如：不要香菜"></textarea>
+    </div>
+
+    <button class="checkout" onclick="submitOrder()">
+      送出訂單
+    </button>
+
+  </section>
+
+</main>
+
+
+<!-- 商品 Modal -->
+
+<div id="itemOverlay" class="overlay">
+
+  <div class="modal">
+
+    <button class="modal-close" onclick="closeItem()">
+      ×
+    </button>
+
+    <div id="modalTitle" class="modal-title"></div>
+
+    <div id="modalDesc" class="item-desc"></div>
+
+    <div id="modifiers"></div>
+
+    <div class="qty">
+
+      <button onclick="changeQty(-1)">
+        −
+      </button>
+
+      <strong id="modalQty">1</strong>
+
+      <button onclick="changeQty(1)">
+        ＋
+      </button>
+
+    </div>
+
+    <button class="add-cart" onclick="addToCart()">
+      加入購物車
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- 購物車 -->
+
+<div id="cartPanel" class="cart-panel">
+
+  <div class="cart-head">
+
+    <strong>購物車</strong>
+
+    <button class="close-cart" onclick="closeCart()">
+      關閉
+    </button>
+
+  </div>
+
+  <div id="cartBody" class="cart-body">
+  </div>
+
+  <div class="cart-bottom">
+
+    <div class="total">
+
+      <span>總計</span>
+
+      <span id="cartTotal">
+        $0
+      </span>
+
+    </div>
+
+    <button class="checkout" onclick="goCheckout()">
+      前往確認訂單
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+let restaurantData = null;
+
+let cart = [];
+
+let currentItem = null;
+
+let currentQty = 1;
+
+
+/* =========================
+   狀態
+========================= */
+
+function setStatus(text, error=false){
+
+  const el = document.getElementById("status");
+
+  el.style.display = "block";
+
+  el.textContent = text;
+
+  if(error){
+
+    el.style.background = "#ffe9e9";
+    el.style.color = "#b00020";
+
+  }else{
+
+    el.style.background = "#f1f1f1";
+    el.style.color = "#222";
+
+  }
+
+}
+
+
+/* =========================
+   匯入
+========================= */
+
+async function importRestaurant(){
+
+  const url =
+    document.getElementById("restaurantUrl").value.trim();
+
+  if(!url){
+
+    setStatus("請先貼上 Uber Eats 餐廳網址",true);
+    return;
+
+  }
+
+  if(
+    !url.includes("ubereats.com")
+  ){
+
+    setStatus("請輸入 Uber Eats 餐廳網址",true);
+    return;
+
+  }
+
+  setStatus("正在開啟餐廳頁面並解析菜單，請稍候…");
+
+  try{
+
+    const response = await fetch("/api/import",{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+        url
+      })
+
+    });
+
+
+    const data = await response.json();
+
+
+    if(!response.ok || !data.success){
+
+      throw new Error(
+        data.error || "匯入失敗"
+      );
+
+    }
+
+
+    restaurantData = data.restaurant;
+
+    renderRestaurant();
+
+    setStatus(
+      `匯入完成，共找到 ${countItems()} 個商品`
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    setStatus(
+      "匯入失敗：" + error.message,
+      true
+    );
+
+  }
+
+}
+
+
+/* =========================
+   商品數量
+========================= */
+
+function countItems(){
+
+  if(!restaurantData?.categories)
+    return 0;
+
+  return restaurantData.categories.reduce(
+    (total,cat)=>
+      total + (cat.items?.length || 0),
+    0
+  );
+
+}
+
+
+/* =========================
+   餐廳
+========================= */
+
+function renderRestaurant(){
+
+  document.getElementById("restaurant")
+    .style.display="block";
+
+  document.getElementById("restaurantName")
+    .textContent =
+      restaurantData.name || "餐廳";
+
+  document.getElementById("restaurantDesc")
+    .textContent =
+      restaurantData.description || "";
+
+
+  renderCategories();
+
+  renderMenu();
+
+}
+
+
+function renderCategories(){
+
+  const el =
+    document.getElementById("categories");
+
+  el.innerHTML = "";
+
+  restaurantData.categories.forEach(
+    (cat,index)=>{
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "category-btn";
+
+      if(index===0)
+        button.classList.add("active");
+
+      button.textContent =
+        cat.name;
+
+      button.onclick=()=>{
+
+        document
+          .querySelectorAll(".category-btn")
+          .forEach(x=>
+            x.classList.remove("active")
+          );
+
+        button.classList.add("active");
+
+        document
+          .getElementById(
+            "category-"+index
+          )
+          ?.scrollIntoView({
+            behavior:"smooth"
+          });
+
+      };
+
+      el.appendChild(button);
+
+    }
+  );
+
+}
+
+
+function renderMenu(){
+
+  const menu =
+    document.getElementById("menu");
+
+  menu.innerHTML = "";
+
+
+  restaurantData.categories.forEach(
+    (cat,index)=>{
+
+      const section =
+        document.createElement("section");
+
+      section.className =
+        "menu-category";
+
+      section.id =
+        "category-"+index;
+
+
+      const title =
+        document.createElement("div");
+
+      title.className =
+        "category-title";
+
+      title.textContent =
+        cat.name;
+
+      section.appendChild(title);
+
+
+      if(!cat.items?.length){
+
+        const empty =
+          document.createElement("div");
+
+        empty.className="empty";
+
+        empty.textContent =
+          "目前沒有商品";
+
+        section.appendChild(empty);
+
+      }
+
+
+      cat.items.forEach(item=>{
+
+        const row =
+          document.createElement("div");
+
+        row.className="item";
+
+        row.onclick=()=>
+          openItem(item);
+
+
+        const info =
+          document.createElement("div");
+
+        info.className="item-info";
+
+
+        const name =
+          document.createElement("div");
+
+        name.className="item-name";
+
+        name.textContent =
+          item.name || "未命名商品";
+
+
+        const desc =
+          document.createElement("div");
+
+        desc.className="item-desc";
+
+        desc.textContent =
+          item.description || "";
+
+
+        const price =
+          document.createElement("div");
+
+        price.className="item-price";
+
+        price.textContent =
+          formatMoney(item.price);
+
+
+        info.appendChild(name);
+        info.appendChild(desc);
+        info.appendChild(price);
+
+
+        if(item.image){
+
+          const img =
+            document.createElement("img");
+
+          img.className="item-img";
+
+          img.src=item.image;
+
+          img.loading="lazy";
+
+          row.appendChild(info);
+
+          row.appendChild(img);
+
+        }else{
+
+          row.appendChild(info);
+
+        }
+
+
+        section.appendChild(row);
+
+      });
+
+
+      menu.appendChild(section);
+
+    }
+  );
+
+}
+
+
+/* =========================
+   商品 Modal
+========================= */
+
+function openItem(item){
+
+  currentItem=item;
+
+  currentQty=1;
+
+  document.getElementById("modalTitle")
+    .textContent=item.name;
+
+  document.getElementById("modalDesc")
+    .textContent=item.description || "";
+
+  document.getElementById("modalQty")
+    .textContent="1";
+
+
+  const modifiers =
+    document.getElementById("modifiers");
+
+  modifiers.innerHTML="";
+
+
+  if(item.modifierGroups?.length){
+
+    item.modifierGroups.forEach(
+      (group,gIndex)=>{
+
+        const wrapper =
+          document.createElement("div");
+
+        wrapper.className="modifier";
+
+
+        const title =
+          document.createElement("div");
+
+        title.className="modifier-title";
+
+        title.textContent =
+          group.name;
+
+        wrapper.appendChild(title);
+
+
+        (group.options || []).forEach(
+          (option,oIndex)=>{
+
+            const label =
+              document.createElement("label");
+
+            label.className="option";
+
+
+            const left =
+              document.createElement("span");
+
+
+            const input =
+              document.createElement("input");
+
+            input.type =
+              group.multiple
+              ? "checkbox"
+              : "radio";
+
+            input.name =
+              "modifier-"+gIndex;
+
+            input.value =
+              oIndex;
+
+
+            left.appendChild(input);
+
+            left.append(
+              document.createTextNode(
+                " " + option.name
+              )
+            );
+
+
+            const price =
+              document.createElement("span");
+
+            if(option.price){
+
+              price.textContent =
+                "+" + formatMoney(option.price);
+
+            }
+
+
+            label.appendChild(left);
+            label.appendChild(price);
+
+            wrapper.appendChild(label);
+
+          }
+        );
+
+
+        modifiers.appendChild(wrapper);
+
+      }
+    );
+
+  }
+
+
+  document.getElementById("itemOverlay")
+    .style.display="block";
+
+}
+
+
+function closeItem(){
+
+  document.getElementById("itemOverlay")
+    .style.display="none";
+
+}
+
+
+function changeQty(delta){
+
+  currentQty += delta;
+
+  if(currentQty<1)
+    currentQty=1;
+
+  if(currentQty>99)
+    currentQty=99;
+
+  document.getElementById("modalQty")
+    .textContent=currentQty;
+
+}
+
+
+/* =========================
+   加入購物車
+========================= */
+
+function addToCart(){
+
+  if(!currentItem)
+    return;
+
+
+  const selected=[];
+
+
+  currentItem.modifierGroups?.forEach(
+    (group,gIndex)=>{
+
+      const inputs =
+        document.querySelectorAll(
+          `[name="modifier-${gIndex}"]:checked`
+        );
+
+
+      inputs.forEach(input=>{
+
+        const option =
+          group.options[
+            Number(input.value)
+          ];
+
+        if(option){
+
+          selected.push({
+
+            group:group.name,
+
+            name:option.name,
+
+            price:Number(option.price)||0
+
+          });
+
+        }
+
+      });
+
+    }
+  );
+
+
+  let modifierPrice=0;
+
+  selected.forEach(
+    x=>modifierPrice += x.price
+  );
+
+
+  const basePrice =
+    Number(currentItem.price)||0;
+
+
+  const unitPrice =
+    basePrice + modifierPrice;
+
+
+  cart.push({
+
+    name:currentItem.name,
+
+    basePrice,
+
+    modifiers:selected,
+
+    quantity:currentQty,
+
+    unitPrice
+
+  });
+
+
+  updateCart();
+
+  closeItem();
+
+  openCart();
+
+}
+
+
+/* =========================
+   購物車
+========================= */
+
+function updateCart(){
+
+  const body =
+    document.getElementById("cartBody");
+
+  body.innerHTML="";
+
+
+  let total=0;
+
+  let count=0;
+
+
+  if(!cart.length){
+
+    body.innerHTML=
+      '<div class="empty">購物車目前是空的</div>';
+
+  }
+
+
+  cart.forEach((item,index)=>{
+
+    const row =
+      document.createElement("div");
+
+    row.className="cart-item";
+
+
+    const name =
+      document.createElement("div");
+
+    name.className="cart-item-name";
+
+    name.textContent =
+      item.name;
+
+
+    const sub =
+      document.createElement("div");
+
+    sub.className="cart-item-sub";
+
+    let modifierText =
+      item.modifiers
+        .map(x=>x.name)
+        .join("、");
+
+
+    sub.textContent =
+      `${modifierText ? modifierText+" · " : ""}數量 ${item.quantity}`;
+
+
+    const price =
+      document.createElement("div");
+
+    price.style.marginTop="8px";
+
+    price.style.fontWeight="700";
+
+    price.textContent =
+      formatMoney(
+        item.unitPrice *
+        item.quantity
+      );
+
+
+    const remove =
+      document.createElement("button");
+
+    remove.textContent="刪除";
+
+    remove.style.marginTop="8px";
+
+    remove.onclick=()=>{
+
+      cart.splice(index,1);
+
+      updateCart();
+
+    };
+
+
+    row.appendChild(name);
+    row.appendChild(sub);
+    row.appendChild(price);
+    row.appendChild(remove);
+
+
+    body.appendChild(row);
+
+
+    total +=
+      item.unitPrice *
+      item.quantity;
+
+    count += item.quantity;
+
+  });
+
+
+  document.getElementById("cartTotal")
+    .textContent=formatMoney(total);
+
+  document.getElementById("cartCount")
+    .textContent=count;
+
+}
+
+
+function openCart(){
+
+  document.getElementById("cartPanel")
+    .classList.add("open");
+
+}
+
+
+function closeCart(){
+
+  document.getElementById("cartPanel")
+    .classList.remove("open");
+
+}
+
+
+/* =========================
+   結帳
+========================= */
+
+function goCheckout(){
+
+  if(!cart.length){
+
+    alert("購物車目前沒有商品");
+
+    return;
+
+  }
+
+  closeCart();
+
+  const form =
+    document.getElementById("orderForm");
+
+  form.style.display="block";
+
+  form.scrollIntoView({
+    behavior:"smooth"
+  });
+
+}
+
+
+function submitOrder(){
+
+  const name =
+    document.getElementById("customerName")
+      .value.trim();
+
+  const phone =
+    document.getElementById("customerPhone")
+      .value.trim();
+
+  const note =
+    document.getElementById("customerNote")
+      .value.trim();
+
+
+  if(!name){
+
+    alert("請輸入姓名");
+    return;
+
+  }
+
+
+  if(!phone){
+
+    alert("請輸入電話");
+    return;
+
+  }
+
+
+  const order={
+
+    restaurant:
+      restaurantData.name,
+
+    customer:{
+      name,
+      phone,
+      note
+    },
+
+    items:cart,
+
+    total:getCartTotal(),
+
+    createdAt:
+      new Date().toISOString()
+
+  };
+
+
+  console.log(order);
+
+
+  alert(
+    "訂單已建立！\n\n"+
+    "總金額："+formatMoney(order.total)
+  );
+
+
+  /*
+   * 下一階段可以在這裡接：
+   *
+   * POST /api/orders
+   *
+   * 然後寫入：
+   * Cloudflare D1
+   *
+   * 或：
+   * Google Sheets
+   */
+
+
+}
+
+
+function getCartTotal(){
+
+  return cart.reduce(
+    (sum,item)=>
+      sum +
+      item.unitPrice *
+      item.quantity,
+    0
+  );
+
+}
+
+
+function formatMoney(price){
+
+  if(price===null || price===undefined)
+    return "$0";
+
+  return "$"+
+    Number(price).toLocaleString("zh-TW");
+
+}
+
+
+updateCart();
+
+</script>
+
+</body>
+</html>
